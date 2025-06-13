@@ -363,6 +363,41 @@ Ensure semantic diversity across generated concepts → avoid repetition.
 
 **Pipeline stage**: runs after LLM generation → before final output.
 
+```python
+# Load model
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Example list of concepts (could be JSON text from GPT-4o)
+concept_texts = [
+    "Young athlete sprinting outdoors in sunrise with CoolFit gear.",
+    "Athlete running in city streets wearing CoolFit outfit.",
+    "Close-up of CoolFit leggings with moisture-wicking fabric.",
+    "Group of young adults smiling post-gym session with CoolFit gear.",
+    "Athlete sprinting with sunrise background wearing CoolFit."
+]
+
+# Encode concepts → embeddings
+embeddings = model.encode(concept_texts)
+
+# Compute similarity matrix
+similarity_matrix = util.cos_sim(embeddings, embeddings).numpy()
+
+# Filter concepts → only keep ones where max sim < threshold
+threshold = 0.85
+to_keep = []
+for i, row in enumerate(similarity_matrix):
+    max_sim = np.max(np.delete(row, i))
+    if max_sim < threshold:
+        to_keep.append(i)
+
+# Result: filtered diverse concepts
+diverse_concepts = [concept_texts[i] for i in to_keep]
+
+print("Diverse Concepts:")
+for c in diverse_concepts:
+    print("-", c)
+```
+
 ### 4.4. Brand Tone Alignment → Embedding similarity checks + fine-tuning
 
 **Purpose**:

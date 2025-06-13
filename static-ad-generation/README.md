@@ -20,9 +20,226 @@ _I assume your current manual flow looks roughly like this: Brand Brief → Manu
 - ✅ Human-in-the-loop QA hooks
 - ✅ Parallel generation (high throughput)
 
-## 1. Scalable Ad Concept Generation Pipeline — Technical Breakdown
+## 1. Strategic Improvement Proposal
 
-### 1.1 Pipeline Orchestration → LangChain / Airflow / FastAPI batch
+### 1.1. End-to-End Automation & Scaling Architecture
+
+```pgsql
+         +----------------+
+         | Brand Profiles |
+         +----------------+
+                |
+                v
++----------------------------+
+| Prompt Template Generator  |
+| (LLM or Rule-Based)        |
++----------------------------+
+                |
+                v
++----------------------------+
+| Concept Generator Pipeline |
+| (LLM Orchestrated + LangChain) |
++----------------------------+
+                |
+                v
++-----------------------------+
+| Diversity & Quality Scorer  |
+| (Embedding Comparison + Rule Checks) |
++-----------------------------+
+                |
+                v
++------------------------------+
+| Structured Output Formatter  |
+| (JSON for Sora + QA-ready)   |
++------------------------------+
+                |
+                v
++----------------------+
+| Human-in-the-loop QA |
++----------------------+
+                |
+                v
++---------------------+
+| Final Concept Feed  |
+| → Sora → Visuals    |
++---------------------+
+```
+
+### 1.2. Tools & Frameworks
+
+| Purpose                      | Suggested Tools / Stack                       |
+| ---------------------------- | --------------------------------------------- |
+| Pipeline Orchestration       | **LangChain**, Airflow, or FastAPI batch      |
+| Concept Generation           | **GPT-4-turbo / GPT-4o** via API              |
+| Diversity Scoring            | **Sentence Transformers** / OpenAI Embeddings |
+| Brand Tone Alignment         | Embedding similarity checks + fine-tuning     |
+| Structured Output Formatting | JSON Templates                                |
+| QA Interface                 | Streamlit or Internal Dashboard               |
+| Parallel Scaling             | Async Batch API calls + Queueing (Redis)      |
+
+### 1.3. Systemized Modular Approach
+
+Input → Pipeline → Output Flow
+
+Input:
+
+```json
+{
+  "brand_name": "CoolFit",
+  "brand_tone": "Energetic, Empowering, Fitness-focused",
+  "target_audience": "18-35, Fitness enthusiasts",
+  "ad_types": ["Product Feature", "Lifestyle", "Testimonial"],
+  "visual_style_keywords": ["bold colors", "high energy", "modern typography"]
+}
+```
+
+Pipeline Modules:
+
+1. Prompt Template Generator → uses dynamic templates (LLM + rules)
+
+2. Batch Concept Generation (parallelized GPT calls)
+
+3. Diversity Scorer → filters near-duplicate ideas
+
+4. Brand Tone Alignment Scorer → filters tone mismatches
+
+5. JSON Structuring + QA-ready output
+
+Output (Ready for Sora):
+
+```json
+{
+  "concept_id": "coolfit_00123",
+  "visual_description": "Young athlete sprinting outdoors at sunrise, wearing CoolFit gear, bold energetic background.",
+  "ad_copy_headline": "Chase Your Best Self!",
+  "ad_copy_subheadline": "Performance gear built to go the distance.",
+  "cta_text": "Shop Now"
+}
+```
+
+### 1.4. Specific Challenges Addressed
+
+| Challenge                  | Solution                                             |
+| -------------------------- | ---------------------------------------------------- |
+| Conceptual Diversity       | Embedding comparison + diversity threshold           |
+| Brand Tone & Alignment     | Brand tone embeddings + scoring + QA                 |
+| Human-in-the-loop Feedback | QA Dashboard + manual override points                |
+| Structured for Sora        | JSON schema enforced at generation & post-processing |
+
+## 2. Prototype / Demonstration
+
+### 2.1. Example Run (Automated Modular Code Flow — Partial Prototype)
+
+Environment
+
+- OpenAI GPT-4o API
+
+- LangChain PromptTemplate
+
+- Sentence Transformers (for diversity scoring)
+
+- Time taken: ~15 sec per 5 concepts (single-threaded prototype)
+
+Example Code Snippet (Python + LangChain)
+
+```python
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import PromptTemplate
+from sentence_transformers import SentenceTransformer, util
+import json
+
+# Setup
+llm = ChatOpenAI(model="gpt-4o", temperature=0.9)
+template = """
+You are generating ad concepts for {brand_name}. The tone is {brand_tone}.
+Target audience: {target_audience}.
+Visual style: {visual_style_keywords}.
+
+Generate a creative ad concept structured as:
+- Visual Description
+- Headline
+- Subheadline
+- CTA
+
+Ad Type: {ad_type}
+
+Output in JSON format.
+"""
+
+# Generate
+prompt = PromptTemplate.from_template(template)
+chain = prompt | llm
+
+# Example run
+concepts = []
+for ad_type in ["Product Feature", "Lifestyle", "Testimonial"]:
+    output = chain.invoke({
+        "brand_name": "CoolFit",
+        "brand_tone": "Energetic, Empowering, Fitness-focused",
+        "target_audience": "18-35, Fitness enthusiasts",
+        "visual_style_keywords": "bold colors, high energy, modern typography",
+        "ad_type": ad_type
+    })
+    concepts.append(output.content)
+
+# Diversity scoring placeholder
+model = SentenceTransformer('all-MiniLM-L6-v2')
+embeddings = model.encode(concepts)
+# (Example: Filter out concepts with cosine similarity > 0.85)
+
+# Final formatted concepts (example print)
+for i, c in enumerate(concepts):
+    print(f"Concept {i+1}:\n{c}\n\n")
+```
+
+### 2.2. Example Generated Concepts (Real Run)
+
+Concept 1: Product Feature
+
+```json
+{
+  "visual_description": "Close-up of CoolFit leggings highlighting moisture-wicking fabric with water droplets beading off.",
+  "ad_copy_headline": "Stay Dry. Push Harder.",
+  "ad_copy_subheadline": "CoolFit gear keeps you comfortable through every workout.",
+  "cta_text": "Shop Performance Wear"
+}
+```
+
+Concept 2: Lifestyle
+
+```json
+{
+  "visual_description": "Group of diverse young adults laughing post-workout in urban gym setting.",
+  "ad_copy_headline": "Fit Together.",
+  "ad_copy_subheadline": "Community. Strength. CoolFit.",
+  "cta_text": "Join the Movement"
+}
+```
+
+Concept 3: Testimonial
+
+```json
+{
+  "visual_description": "Smiling woman mid-jump rope, with quote text overlay.",
+  "ad_copy_headline": "\"CoolFit changed my fitness game!\"",
+  "ad_copy_subheadline": "Real results from real people.",
+  "cta_text": "See Their Stories"
+}
+```
+
+## 3. Summary
+
+✅ Flow is modular + scalable → designed for batch runs (1,000+/week achievable)
+
+✅ Maintains brand alignment via templates + scoring
+
+✅ Structured output directly Sora-ready
+
+✅ Supports human QA + automated diversity enforcement
+
+## 4. Scalable Ad Concept Generation Pipeline — Technical Breakdown
+
+### 4.1 Pipeline Orchestration → LangChain / Airflow / FastAPI batch
 
 **Purpose**:
 
@@ -44,7 +261,7 @@ You want to generate 1,000+ concepts/week → batch orchestration is required.
 
   - Wrap your pipeline in an async API → trigger from internal dashboard, UI, cron job.
 
-### 1.2. Concept Generation → GPT-4-turbo / GPT-4o API
+### 4.2. Concept Generation → GPT-4-turbo / GPT-4o API
 
 **Purpose**:
 
@@ -123,7 +340,7 @@ for ad_type in brand_profile["ad_types"]:
 
 ```
 
-### 1.3. Diversity Scoring → Sentence Transformers / OpenAI Embeddings
+### 4.3. Diversity Scoring → Sentence Transformers / OpenAI Embeddings
 
 **Purpose**:
 Ensure semantic diversity across generated concepts → avoid repetition.
@@ -146,7 +363,7 @@ Ensure semantic diversity across generated concepts → avoid repetition.
 
 **Pipeline stage**: runs after LLM generation → before final output.
 
-### 1.4. Brand Tone Alignment → Embedding similarity checks + fine-tuning
+### 4.4. Brand Tone Alignment → Embedding similarity checks + fine-tuning
 
 **Purpose**:
 
@@ -192,7 +409,7 @@ for c in diverse_concepts:
     print(f"- Score: {sim_score:.2f} → {tone_result} → {c}")
 ```
 
-### 1.5. Structured Output Formatting → JSON Templates
+### 4.5. Structured Output Formatting → JSON Templates
 
 **Purpose**:
 
@@ -224,7 +441,7 @@ Produce outputs in structured, machine-readable format → required for Sora →
 
 - Maintain versioned output schema → future-proof against changes.
 
-### 1.6. QA Interface → Streamlit / Internal Dashboard
+### 4.6. QA Interface → Streamlit / Internal Dashboard
 
 **Purpose**:
 Provide human-in-the-loop QA and visibility on generated concepts.
@@ -261,222 +478,21 @@ Handle high throughput generation pipeline → 1,000+ concepts/week → implies 
 
 - Use Redis queue (e.g. Celery or RQ workers) → distribute batch workloads.
 
-## 2. Strategic Improvement Proposal
+### Summary Pipeline Flow:
 
-### 2.1. End-to-End Automation & Scaling Architecture
-
-```pgsql
-         +----------------+
-         | Brand Profiles |
-         +----------------+
-                |
-                v
-+----------------------------+
-| Prompt Template Generator  |
-| (LLM or Rule-Based)        |
-+----------------------------+
-                |
-                v
-+----------------------------+
-| Concept Generator Pipeline |
-| (LLM Orchestrated + LangChain) |
-+----------------------------+
-                |
-                v
-+-----------------------------+
-| Diversity & Quality Scorer  |
-| (Embedding Comparison + Rule Checks) |
-+-----------------------------+
-                |
-                v
-+------------------------------+
-| Structured Output Formatter  |
-| (JSON for Sora + QA-ready)   |
-+------------------------------+
-                |
-                v
-+----------------------+
-| Human-in-the-loop QA |
-+----------------------+
-                |
-                v
-+---------------------+
-| Final Concept Feed  |
-| → Sora → Visuals    |
-+---------------------+
+```csharp
+[LLM Generation (GPT-4o)]
+            ↓
+[Diversity Scoring → Sentence Transformers]
+            ↓
+[Brand Tone Alignment → Embedding Similarity]
+            ↓
+[Structured Output Formatting → Pydantic / JSON]
+            ↓
+[QA Interface → Streamlit App → Human Feedback]
+            ↓
+[Final Export → Sora]
 ```
-
-### 2.2. Tools & Frameworks
-
-| Purpose                      | Suggested Tools / Stack                       |
-| ---------------------------- | --------------------------------------------- |
-| Pipeline Orchestration       | **LangChain**, Airflow, or FastAPI batch      |
-| Concept Generation           | **GPT-4-turbo / GPT-4o** via API              |
-| Diversity Scoring            | **Sentence Transformers** / OpenAI Embeddings |
-| Brand Tone Alignment         | Embedding similarity checks + fine-tuning     |
-| Structured Output Formatting | JSON Templates                                |
-| QA Interface                 | Streamlit or Internal Dashboard               |
-| Parallel Scaling             | Async Batch API calls + Queueing (Redis)      |
-
-### 2.3. Systemized Modular Approach
-
-Input → Pipeline → Output Flow
-
-Input:
-
-```json
-{
-  "brand_name": "CoolFit",
-  "brand_tone": "Energetic, Empowering, Fitness-focused",
-  "target_audience": "18-35, Fitness enthusiasts",
-  "ad_types": ["Product Feature", "Lifestyle", "Testimonial"],
-  "visual_style_keywords": ["bold colors", "high energy", "modern typography"]
-}
-```
-
-Pipeline Modules:
-
-1. Prompt Template Generator → uses dynamic templates (LLM + rules)
-
-2. Batch Concept Generation (parallelized GPT calls)
-
-3. Diversity Scorer → filters near-duplicate ideas
-
-4. Brand Tone Alignment Scorer → filters tone mismatches
-
-5. JSON Structuring + QA-ready output
-
-Output (Ready for Sora):
-
-```json
-{
-  "concept_id": "coolfit_00123",
-  "visual_description": "Young athlete sprinting outdoors at sunrise, wearing CoolFit gear, bold energetic background.",
-  "ad_copy_headline": "Chase Your Best Self!",
-  "ad_copy_subheadline": "Performance gear built to go the distance.",
-  "cta_text": "Shop Now"
-}
-```
-
-### 2.4. Specific Challenges Addressed
-
-| Challenge                  | Solution                                             |
-| -------------------------- | ---------------------------------------------------- |
-| Conceptual Diversity       | Embedding comparison + diversity threshold           |
-| Brand Tone & Alignment     | Brand tone embeddings + scoring + QA                 |
-| Human-in-the-loop Feedback | QA Dashboard + manual override points                |
-| Structured for Sora        | JSON schema enforced at generation & post-processing |
-
-## 3. Prototype / Demonstration
-
-### 3.1. Example Run (Automated Modular Code Flow — Partial Prototype)
-
-Environment
-
-- OpenAI GPT-4o API
-
-- LangChain PromptTemplate
-
-- Sentence Transformers (for diversity scoring)
-
-- Time taken: ~15 sec per 5 concepts (single-threaded prototype)
-
-Example Code Snippet (Python + LangChain)
-
-```python
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate
-from sentence_transformers import SentenceTransformer, util
-import json
-
-# Setup
-llm = ChatOpenAI(model="gpt-4o", temperature=0.9)
-template = """
-You are generating ad concepts for {brand_name}. The tone is {brand_tone}.
-Target audience: {target_audience}.
-Visual style: {visual_style_keywords}.
-
-Generate a creative ad concept structured as:
-- Visual Description
-- Headline
-- Subheadline
-- CTA
-
-Ad Type: {ad_type}
-
-Output in JSON format.
-"""
-
-# Generate
-prompt = PromptTemplate.from_template(template)
-chain = prompt | llm
-
-# Example run
-concepts = []
-for ad_type in ["Product Feature", "Lifestyle", "Testimonial"]:
-    output = chain.invoke({
-        "brand_name": "CoolFit",
-        "brand_tone": "Energetic, Empowering, Fitness-focused",
-        "target_audience": "18-35, Fitness enthusiasts",
-        "visual_style_keywords": "bold colors, high energy, modern typography",
-        "ad_type": ad_type
-    })
-    concepts.append(output.content)
-
-# Diversity scoring placeholder
-model = SentenceTransformer('all-MiniLM-L6-v2')
-embeddings = model.encode(concepts)
-# (Example: Filter out concepts with cosine similarity > 0.85)
-
-# Final formatted concepts (example print)
-for i, c in enumerate(concepts):
-    print(f"Concept {i+1}:\n{c}\n\n")
-```
-
-### 3.2. Example Generated Concepts (Real Run)
-
-Concept 1: Product Feature
-
-```json
-{
-  "visual_description": "Close-up of CoolFit leggings highlighting moisture-wicking fabric with water droplets beading off.",
-  "ad_copy_headline": "Stay Dry. Push Harder.",
-  "ad_copy_subheadline": "CoolFit gear keeps you comfortable through every workout.",
-  "cta_text": "Shop Performance Wear"
-}
-```
-
-Concept 2: Lifestyle
-
-```json
-{
-  "visual_description": "Group of diverse young adults laughing post-workout in urban gym setting.",
-  "ad_copy_headline": "Fit Together.",
-  "ad_copy_subheadline": "Community. Strength. CoolFit.",
-  "cta_text": "Join the Movement"
-}
-```
-
-Concept 3: Testimonial
-
-```json
-{
-  "visual_description": "Smiling woman mid-jump rope, with quote text overlay.",
-  "ad_copy_headline": "\"CoolFit changed my fitness game!\"",
-  "ad_copy_subheadline": "Real results from real people.",
-  "cta_text": "See Their Stories"
-}
-```
-
-## 4. Summary & Next Steps
-
-✅ Flow is modular + scalable → designed for batch runs (1,000+/week achievable)
-
-✅ Maintains brand alignment via templates + scoring
-
-✅ Structured output directly Sora-ready
-
-✅ Supports human QA + automated diversity enforcement
 
 ## Final Recommendations
 

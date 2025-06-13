@@ -43,7 +43,7 @@ We’ll build this with a hybrid of modern dev tools and cloud services:
 
 ---
 
-## 📅 Step-by-Step: How We Build It
+## Step-by-Step: How We Build It
 
 ### 1. **Automate the Data Ingestion**
 
@@ -108,11 +108,11 @@ forecast = model.predict(future)
 
 We don’t just want predictions — we want **feedback loops** and intelligent behavior.
 
-#### 🔁 Retrain Models Automatically
+#### Retrain Models Automatically
 
 Run weekly retraining jobs using updated BigQuery data.
 
-#### 📉 Detect Anomalies
+#### Detect Anomalies
 
 If actual spend or aMER deviates too far from forecast (say ±15%), trigger an alert:
 
@@ -122,7 +122,7 @@ if error > 0.15:
     send_slack("⚠️ Spend deviation on Meta Ads!")
 ```
 
-#### 📊 Budget Suggestions
+#### Budget Suggestions
 
 Use the model to simulate:
 
@@ -135,7 +135,7 @@ We could even use a GPT model to write human-readable recommendations:
 
 ---
 
-## 🧱 Scalable Architecture
+## Scalable Architecture
 
 Here’s what the system looks like end-to-end:
 
@@ -173,9 +173,9 @@ Run everything in:
 
 ---
 
-## 🔍 Monitoring & Maintenance
+## Monitoring & Maintenance
 
-You’ll want:
+We’ll want:
 
 - Logging in Cloud Logging or Datadog
 - Fallback logic if APIs fail

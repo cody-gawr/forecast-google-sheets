@@ -129,7 +129,7 @@ Use the model to simulate:
 - “What if we cut Meta by 20% and increased Google by 10%?”
 - “Which campaign has the best aMER historically in June?”
 
-You could even use a GPT model to write human-readable recommendations:
+We could even use a GPT model to write human-readable recommendations:
 
 > "_Meta spend is 18% above forecast, but conversions are flat. Consider reallocating to Google._"
 
@@ -194,7 +194,5 @@ We're evolving from:
 to:
 
 > **"Smart pipeline that forecasts, detects surprises, and helps guide strategy."**
-
-This is where automation meets intelligence — and your team gets back time to make better decisions, not wrangle spreadsheets.
 
 ---
